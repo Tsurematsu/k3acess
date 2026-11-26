@@ -1,0 +1,33 @@
+{
+  "name": "k3access",
+  "version": "1.0.0",
+  "description": "Herramienta TUI de administración de namespaces k3s compatible con el contrato tsure.io/* y afinidad por agente",
+  "type": "module",
+  "main": "./dist/index.js",
+  "bin": {
+    "k3access": "./dist/index.js",
+    "kns": "./dist/index.js"
+  },
+  "scripts": {
+    "dev": "tsx src/index.tsx",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test tests/*.test.ts",
+    "build:sea": "node scripts/build-sea.mjs"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "ink": "^8.0.0",
+    "react": "^19.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "esbuild": "^0.28.0",
+    "tsx": "^4.23.0",
+    "typescript": "^5.8.0"
+  }
+}
