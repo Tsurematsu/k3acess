@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>k3access — Gestor TUI de Namespaces para k3s (tsure.io/*)</title>
+    <meta
+      name="description"
+      content="Herramienta TUI local dependiente de kubectl para validar acceso al servidor/agentes k3s y administrar namespaces de forma segura bajo el contrato tsure.io/*."
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="navbar">
+      <div class="container navbar-inner">
+        <a class="brand" href="#inicio">
+          <span class="brand-dot" aria-hidden="true"></span>
+          <span>k3access</span>
+          <span class="brand-tag">tsure.io/*</span>
+        </a>
+        <nav class="nav-links" aria-label="Navegación principal">
+          <a href="#caracteristicas">Características</a>
+          <a href="#recorrido">Recorrido</a>
+          <a href="#contrato">Contrato y Seguridad</a>
+          <a href="#instalacion">Instalación</a>
+          <a href="#atajos">Atajos</a>
+        </nav>
+        <a
+          class="btn btn-secondary btn-sm"
+          href="https://github.com/Tsurematsu/k3acess"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          GitHub ↗
+        </a>
+      </div>
+    </header>
+
+    <main id="inicio">
+      <!-- Hero -->
+      <section class="hero">
+        <div class="container">
+          <div class="eyebrow">● kubectl local · k3s server &amp; agents · React 19 + Ink 8</div>
+          <h1>
+            Administra namespaces de <span class="gradient-text">k3s</span> desde tu terminal, sin accidentes.
+          </h1>
+          <p class="hero-sub">
+            <strong>k3access</strong> valida primero que <code>kubectl</code> esté instalado y conectado a tu cluster k3s,
+            y luego te ofrece una interfaz TUI en vivo para crear, inspeccionar, asignar afinidad por agente y gestionar
+            namespaces bajo el contrato compartido <code>tsure.io/*</code>.
+          </p>
+
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#instalacion">Empezar ahora</a>
+            <a class="btn btn-secondary" href="#recorrido">Ver capturas en vivo</a>
+          </div>
+
+          <div class="hero-pills">
+            <span class="pill">Pre-Flight automático</span>
+            <span class="pill">Doble candado (editar y eliminar)</span>
+            <span class="pill">Afinidad por agente (nodeSelector)</span>
+            <span class="pill">Compatible con kpg / CNPG</span>
+            <span class="pill">Sin shell (spawn directo)</span>
+          </div>
+
+          <div class="terminal-window">
+            <div class="terminal-bar">
+              <div class="terminal-dots" aria-hidden="true">
+                <span></span><span></span><span></span>
+              </div>
+              <div class="terminal-title">k3access — Dashboard en vivo (contexto: k3s)</div>
+              <div class="terminal-zoom-hint">Clic para ampliar ⤢</div>
+            </div>
+            <div class="terminal-body" id="hero-zoom-trigger">
+              <img
+                src="./images/dashboard.png"
+                alt="Dashboard principal de k3access mostrando namespaces, agentes k3s y herramientas tsure.io/*"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Características -->
+      <section class="section" id="caracteristicas">
+        <div class="container">
+          <div class="section-header">
+            <div class="section-kicker">Arquitectura</div>
+            <h2>Diseñada para operar clusters k3s con control total</h2>
+            <p>
+              Una única herramienta responsable del ciclo de vida de los <code>Namespace</code>,
+              protegiendo tus cargas de trabajo y respetando el resto del ecosistema <code>tsure</code>.
+            </p>
+          </div>
+
+          <div class="features-grid">
+            <article class="card">
+              <div class="card-icon">✓</div>
+              <h3>Pre-Flight obligatorio</h3>
+              <p>
+                Comprueba el binario <code>kubectl</code>, el contexto activo, la conectividad con el servidor y
+                agentes k3s, permisos RBAC y la presencia del CRD de CloudNativePG antes de abrir el dashboard.
+              </p>
+            </article>
+
+            <article class="card">
+              <div class="card-icon red">🔒</div>
+              <h3>Doble candado en edición y borrado</h3>
+              <p>
+                Ningún namespace puede editarse ni eliminarse si está protegido, tiene labels de uso
+                <code>tsure.io/&lt;tool&gt;</code> o mantiene pods/recursos activos en cualquier agente k3s.
+              </p>
+            </article>
+
+            <article class="card">
+              <div class="card-icon green">◎</div>
+              <h3>Afinidad por agente k3s</h3>
+              <p>
+                Asigna cada namespace a un agente específico (<code>k3s-agent1</code>, <code>k3s-agent2</code>),
+                un rol (<code>rol:apps</code>) o un selector personalizado, validando qué nodos coinciden en vivo.
+              </p>
+            </article>
+
+            <article class="card">
+              <div class="card-icon magenta">⚡</div>
+              <h3>Contrato <code>tsure.io/*</code></h3>
+              <p>
+                Totalmente compatible con <code>kpg</code>: nunca sobrescribe labels de otras herramientas y ofrece
+                auditoría explícita únicamente cuando existen labels huérfanos con 0 recursos reales.
+              </p>
+            </article>
+
+            <article class="card">
+              <div class="card-icon amber">⌘</div>
+              <h3>Wrapper seguro sin shell</h3>
+              <p>
+                Todas las operaciones ejecutan <code>child_process.spawn('kubectl', args)</code> con
+                <code>shell: false</code>, timeouts controlados y validación estricta DNS-1123.
+              </p>
+            </article>
+
+            <article class="card">
+              <div class="card-icon">⬡</div>
+              <h3>Binario standalone opcional</h3>
+              <p>
+                Ejecuta con Node.js v20+ o genera un binario autónomo con <code>esbuild</code> +
+                <code>node --build-sea</code> sin dependencias nativas.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- Recorrido visual interactivo -->
+      <section class="section" id="recorrido">
+        <div class="container">
+          <div class="section-header">
+            <div class="section-kicker">Recorrido interactivo</div>
+            <h2>Cada pantalla de la TUI en acción</h2>
+            <p>
+              Explora las 7 vistas reales de <strong>k3access</strong>. Haz clic sobre cualquier captura para abrirla
+              en pantalla completa y navegar con <code>←</code> / <code>→</code>.
+            </p>
+          </div>
+
+          <div class="gallery-tabs" id="gallery-tabs" role="tablist" aria-label="Pantallas de k3access"></div>
+
+          <div class="gallery-stage">
+            <div class="terminal-window">
+              <div class="terminal-bar">
+                <div class="terminal-dots" aria-hidden="true">
+                  <span></span><span></span><span></span>
+                </div>
+                <div class="terminal-title" id="stage-terminal-title">k3access</div>
+                <div class="terminal-zoom-hint">Clic para ampliar ⤢</div>
+              </div>
+              <div class="terminal-body" id="stage-zoom-trigger">
+                <img id="stage-img" src="./images/dashboard.png" alt="Captura de k3access" />
+              </div>
+            </div>
+
+            <aside class="gallery-info">
+              <span class="gallery-badge" id="stage-badge"></span>
+              <h3 id="stage-title"></h3>
+              <p id="stage-desc"></p>
+              <ul class="gallery-points" id="stage-points"></ul>
+            </aside>
+          </div>
+
+          <div class="thumb-strip" id="thumb-strip" aria-label="Miniaturas de capturas"></div>
+        </div>
+      </section>
+
+      <!-- Contrato y Simulador de Doble Candado -->
+      <section class="section" id="contrato">
+        <div class="container">
+          <div class="section-header">
+            <div class="section-kicker">Contrato compartido &amp; Seguridad</div>
+            <h2>Propiedad exclusiva de labels y doble candado en vivo</h2>
+            <p>
+              Las demás herramientas del ecosistema (como <code>kpg</code>) solo consumen namespaces existentes y
+              declaran su uso mediante labels propios. <strong>k3access</strong> respeta ese contrato al pie de la letra.
+            </p>
+          </div>
+
+          <div class="two-col">
+            <div>
+              <div class="code-panel">
+                <div class="code-panel-head">
+                  <span>namespace-contract.yaml</span>
+                  <span>v1 / Namespace</span>
+                </div>
+                <pre><code><span class="tok-key">apiVersion</span>: <span class="tok-val">v1</span>
+<span class="tok-key">kind</span>: <span class="tok-val">Namespace</span>
+<span class="tok-key">metadata</span>:
+  <span class="tok-key">name</span>: <span class="tok-val">mi-app-1</span>
+  <span class="tok-key">labels</span>:
+    <span class="tok-key">tsure.io/managed</span>: <span class="tok-val">"true"</span>        <span class="tok-comment"># Aplicado por k3access</span>
+    <span class="tok-warn">tsure.io/kpg</span>: <span class="tok-val">"true"</span>            <span class="tok-comment"># Propiedad exclusiva de kpg</span>
+  <span class="tok-key">annotations</span>:
+    <span class="tok-key">tsure.io/description</span>: <span class="tok-val">"Servicios de Mi App 1"</span>
+    <span class="tok-key">scheduler.alpha.kubernetes.io/node-selector</span>: <span class="tok-val">"kubernetes.io/hostname=k3s-agent2"</span>
+    <span class="tok-key">tsure.io/node-selector</span>: <span class="tok-val">"kubernetes.io/hostname=k3s-agent2"</span></code></pre>
+              </div>
+
+              <div class="note-box">
+                <strong>Nota sobre k3s y PodNodeSelector:</strong> guardar
+                <code>scheduler.alpha.kubernetes.io/node-selector</code> aplica automáticamente la afinidad a los pods
+                nuevos cuando el plugin de admisión <code>PodNodeSelector</code> está habilitado en
+                <code>k3s-server</code>. Además se guarda <code>tsure.io/node-selector</code> para que otras
+                herramientas del ecosistema puedan leerlo directamente.
+              </div>
+            </div>
+
+            <div class="sim-card">
+              <h3>Simulador de Doble Candado</h3>
+              <p>
+                Prueba en vivo cómo evalúa <code>k3access</code> si un namespace puede editarse <code>(e)</code> o
+                eliminarse <code>(x)</code>:
+              </p>
+
+              <div class="sim-toggles">
+                <label class="sim-toggle">
+                  <div class="sim-toggle-text">
+                    <strong>Namespace protegido del sistema</strong>
+                    <span>default · kube-system · kube-public · kube-node-lease · cnpg-system</span>
+                  </div>
+                  <input type="checkbox" id="sim-protected" />
+                </label>
+
+                <label class="sim-toggle">
+                  <div class="sim-toggle-text">
+                    <strong>Label de herramienta activo</strong>
+                    <span>tsure.io/kpg=true (u otro label tsure.io/* de uso)</span>
+                  </div>
+                  <input type="checkbox" id="sim-label" checked />
+                </label>
+
+                <label class="sim-toggle">
+                  <div class="sim-toggle-text">
+                    <strong>Recursos activos en agentes k3s</strong>
+                    <span>pods, deployments, statefulsets, services, pvc o clusters CNPG</span>
+                  </div>
+                  <input type="checkbox" id="sim-resources" />
+                </label>
+              </div>
+
+              <div class="sim-result" id="sim-result" aria-live="polite"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Instalación -->
+      <section class="section" id="instalacion">
+        <div class="container">
+          <div class="section-header">
+            <div class="section-kicker">Inicio rápido</div>
+            <h2>Instala o actualiza vía <code>curl</code> en segundos</h2>
+            <p>
+              Los ejecutables autocontenidos no requieren Node.js: solo necesitas <code>kubectl</code> configurado en tu
+              equipo. El instalador detecta siempre la <strong>última versión publicada</strong>, verifica su hash
+              <strong>SHA-256</strong> y <strong>actualiza automáticamente</strong> si vuelves a ejecutarlo.
+            </p>
+          </div>
+
+          <div class="install-tabs" role="tablist" aria-label="Método de instalación">
+            <button
+              class="gallery-tab active"
+              type="button"
+              role="tab"
+              aria-selected="true"
+              data-install-tab="linux"
+            >
+              Linux (x64) · curl
+            </button>
+            <button
+              class="gallery-tab"
+              type="button"
+              role="tab"
+              aria-selected="false"
+              data-install-tab="windows"
+            >
+              Windows (x64) · curl / PowerShell
+            </button>
+            <button
+              class="gallery-tab"
+              type="button"
+              role="tab"
+              aria-selected="false"
+              data-install-tab="source"
+            >
+              Desde código fuente (Node 20+)
+            </button>
+          </div>
+
+          <div class="install-panel active" data-install-panel="linux">
+            <div class="commands-grid">
+              <div class="code-panel">
+                <div class="code-panel-head">
+                  <span>Instalar o actualizar a la última versión (Linux x64)</span>
+                  <button class="copy-btn" type="button" data-copy-target="cmd-linux-curl">Copiar</button>
+                </div>
+                <pre id="cmd-linux-curl"><code>curl -fsSL https://raw.githubusercontent.com/Tsurematsu/k3acess/main/scripts/install.sh | bash</code></pre>
+              </div>
+
+              <div class="code-panel">
+                <div class="code-panel-head">
+                  <span>Verificar conexión y abrir la TUI</span>
+                  <button class="copy-btn" type="button" data-copy-target="cmd-linux-run">Copiar</button>
+                </div>
+                <pre id="cmd-linux-run"><code># Validar kubectl y cluster sin abrir TUI
+k3access --check
+
+# Abrir el dashboard interactivo
+k3access
+
+# Forzar reinstalación (opcional)
+curl -fsSL https://raw.githubusercontent.com/Tsurematsu/k3acess/main/scripts/install.sh | bash -s -- --force</code></pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="install-panel" data-install-panel="windows">
+            <div class="commands-grid">
+              <div class="code-panel">
+                <div class="code-panel-head">
+                  <span>Instalar o actualizar vía curl.exe (PowerShell)</span>
+                  <button class="copy-btn" type="button" data-copy-target="cmd-win-curl">Copiar</button>
+                </div>
+                <pre id="cmd-win-curl"><code>curl.exe -fsSL https://raw.githubusercontent.com/Tsurematsu/k3acess/main/scripts/install.ps1 -o "$env:TEMP\k3access-install.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\k3access-install.ps1"</code></pre>
+              </div>
+
+              <div class="code-panel">
+                <div class="code-panel-head">
+                  <span>Alternativa en una sola línea (PowerShell irm)</span>
+                  <button class="copy-btn" type="button" data-copy-target="cmd-win-irm">Copiar</button>
+                </div>
+                <pre id="cmd-win-irm"><code>irm https://raw.githubusercontent.com/Tsurematsu/k3acess/main/scripts/install.ps1 | iex
+
+# Después abre una nueva terminal y ejecuta:
+k3access --check
+k3access</code></pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="install-panel" data-install-panel="source">
+            <div class="commands-grid">
+              <div class="code-panel">
+                <div class="code-panel-head">
+                  <span>1. Clonar, compilar y abrir la TUI</span>
+                  <button class="copy-btn" type="button" data-copy-target="cmd-install">Copiar</button>
+                </div>
+                <pre id="cmd-install"><code>git clone https://github.com/Tsurematsu/k3acess.git k3access
+cd k3access
+npm install
+npm run build
+npm start</code></pre>
+              </div>
+
+              <div class="code-panel">
+                <div class="code-panel-head">
+                  <span>2. Pruebas y empaquetado SEA (Linux + Windows)</span>
+                  <button class="copy-btn" type="button" data-copy-target="cmd-tools">Copiar</button>
+                </div>
+                <pre id="cmd-tools"><code># Chequeo Pre-Flight + listado sin TUI
+node dist/index.js --check
+
+# Chequeo de tipos y pruebas unitarias
+npm run typecheck && npm test
+
+# Generar ejecutables autocontenidos en build/
+npm run build:sea</code></pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="release-bar">
+            <div>
+              <strong>Descarga directa desde GitHub Releases (latest):</strong>
+              <span>Binarios autocontenidos verificados con SHA-256.</span>
+            </div>
+            <div class="release-links">
+              <a
+                class="btn btn-secondary btn-sm"
+                href="https://github.com/Tsurematsu/k3acess/releases/latest/download/k3access-linux-x64"
+              >
+                Linux x64 ↓
+              </a>
+              <a
+                class="btn btn-secondary btn-sm"
+                href="https://github.com/Tsurematsu/k3acess/releases/latest/download/k3access-win-x64.exe"
+              >
+                Windows x64 (.exe) ↓
+              </a>
+              <a
+                class="btn btn-secondary btn-sm"
+                href="https://github.com/Tsurematsu/k3acess/releases/latest"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Ver Releases ↗
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Atajos -->
+      <section class="section" id="atajos">
+        <div class="container">
+          <div class="section-header">
+            <div class="section-kicker">Productividad en terminal</div>
+            <h2>Atajos de teclado</h2>
+            <p>Navegación rápida y predecible sin soltar el teclado.</p>
+          </div>
+
+          <div class="shortcuts-grid">
+            <div class="shortcut-item"><kbd>↑ / ↓</kbd><span>Navegar por la tabla de namespaces</span></div>
+            <div class="shortcut-item"><kbd>n</kbd><span>Crear namespace + afinidad de agente</span></div>
+            <div class="shortcut-item"><kbd>i / Enter</kbd><span>Inspeccionar labels y recursos en vivo</span></div>
+            <div class="shortcut-item"><kbd>e</kbd><span>Editar descripción y afinidad (si está libre)</span></div>
+            <div class="shortcut-item"><kbd>x</kbd><span>Eliminar seguro con doble candado</span></div>
+            <div class="shortcut-item"><kbd>a</kbd><span>Ver servidor k3s y agentes conectados</span></div>
+            <div class="shortcut-item"><kbd>y</kbd><span>Mostrar u ocultar sistema y default</span></div>
+            <div class="shortcut-item"><kbd>u</kbd><span>Refrescar manualmente el estado</span></div>
+            <div class="shortcut-item"><kbd>Q / Esc</kbd><span>Salir y restaurar la pantalla</span></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="container footer-inner">
+        <div>
+          <strong>k3access</strong> · Gestor TUI de Namespaces k3s compatible con el contrato
+          <code>tsure.io/*</code> y <code>kpg</code>.
+        </div>
+        <div>
+          <a href="https://github.com/Tsurematsu/k3acess" target="_blank" rel="noopener noreferrer">
+            Repositorio en GitHub ↗
+          </a>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Lightbox modal -->
+    <div class="lightbox" id="lightbox" aria-hidden="true" role="dialog" aria-label="Vista ampliada de captura">
+      <div class="lightbox-inner">
+        <div class="lightbox-top">
+          <div class="lightbox-caption" id="lightbox-caption"></div>
+          <div style="display: flex; gap: 0.5rem;">
+            <button class="btn btn-secondary btn-sm" type="button" id="lightbox-prev">← Anterior</button>
+            <button class="btn btn-secondary btn-sm" type="button" id="lightbox-next">Siguiente →</button>
+            <button class="btn btn-secondary btn-sm" type="button" id="lightbox-close">Cerrar (Esc)</button>
+          </div>
+        </div>
+        <div class="lightbox-img-wrap">
+          <img id="lightbox-img" src="" alt="" />
+        </div>
+      </div>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

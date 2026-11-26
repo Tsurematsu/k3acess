@@ -14,7 +14,9 @@
     "start": "node dist/index.js",
     "typecheck": "tsc --noEmit",
     "test": "tsx --test tests/*.test.ts",
-    "build:sea": "node scripts/build-sea.mjs"
+    "build:sea": "node scripts/build-sea.mjs",
+    "build:sea:linux": "node scripts/build-sea.mjs --target linux",
+    "build:sea:win": "node scripts/build-sea.mjs --target win"
   },
   "engines": {
     "node": ">=20.0.0"

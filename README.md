@@ -99,6 +99,36 @@ metadata:
 
 ## Instalación y uso
 
+### Instalación rápida vía `curl` (binario autocontenido, sin Node.js)
+
+El instalador consulta automáticamente la **última versión en GitHub Releases**, valida la integridad **SHA-256** y **actualiza en sitio** cada vez que vuelvas a ejecutar el mismo comando.
+
+**Linux (x64):**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Tsurematsu/k3acess/main/scripts/install.sh | bash
+```
+
+**Windows (x64 — PowerShell con `curl.exe`):**
+
+```powershell
+curl.exe -fsSL https://raw.githubusercontent.com/Tsurematsu/k3acess/main/scripts/install.ps1 -o "$env:TEMP\k3access-install.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\k3access-install.ps1"
+```
+
+*(Alternativa en PowerShell: `irm https://raw.githubusercontent.com/Tsurematsu/k3acess/main/scripts/install.ps1 | iex`)*
+
+Una vez instalado:
+
+```bash
+# Verificación rápida Pre-Flight + resumen
+k3access --check
+
+# Abrir la TUI interactiva
+k3access
+```
+
+### Desde código fuente (Node.js v20+)
+
 ```bash
 # 1. Instalar dependencias
 npm install
@@ -114,7 +144,7 @@ npm start
 node dist/index.js --check
 ```
 
-### Pruebas y empaquetado standalone
+### Pruebas y empaquetado standalone (Linux + Windows)
 
 ```bash
 # Chequeo estricto de tipos TypeScript
@@ -123,7 +153,7 @@ npm run typecheck
 # Ejecutar pruebas unitarias (DNS-1123, contrato tsure.io/*, afinidad y doble candado)
 npm test
 
-# Generar binario standalone en build/k3access (esbuild + node --build-sea)
+# Generar ejecutables autocontenidos en build/ (k3access-linux-x64 y k3access-win-x64.exe)
 npm run build:sea
 ```
 
