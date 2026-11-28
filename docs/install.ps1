@@ -7,7 +7,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
-$Repo = 'Tsurematsu/k3acess'
+$Repo = 'k3stool/k3access'
 $BinName = 'k3access.exe'
 $AssetName = 'k3access-win-x64.exe'
 

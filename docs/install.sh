@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO="Tsurematsu/k3acess"
+REPO="k3stool/k3access"
 BIN_NAME="k3access"
 ASSET_NAME="k3access-linux-x64"
 FORCE="false"

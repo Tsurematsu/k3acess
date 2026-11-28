@@ -106,16 +106,16 @@ El instalador consulta automáticamente la **última versión en GitHub Releases
 **Linux (x64):**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Tsurematsu/k3acess/main/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/k3stool/k3access/main/scripts/install.sh | bash
 ```
 
 **Windows (x64 — PowerShell con `curl.exe`):**
 
 ```powershell
-curl.exe -fsSL https://raw.githubusercontent.com/Tsurematsu/k3acess/main/scripts/install.ps1 -o "$env:TEMP\k3access-install.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\k3access-install.ps1"
+curl.exe -fsSL https://raw.githubusercontent.com/k3stool/k3access/main/scripts/install.ps1 -o "$env:TEMP\k3access-install.ps1"; powershell -ExecutionPolicy Bypass -File "$env:TEMP\k3access-install.ps1"
 ```
 
-*(Alternativa en PowerShell: `irm https://raw.githubusercontent.com/Tsurematsu/k3acess/main/scripts/install.ps1 | iex`)*
+*(Alternativa en PowerShell: `irm https://raw.githubusercontent.com/k3stool/k3access/main/scripts/install.ps1 | iex`)*
 
 Una vez instalado:
 
